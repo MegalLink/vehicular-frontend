@@ -11,7 +11,6 @@ import {
   Badge,
   Divider,
   HStack,
-  useToast,
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { QUERY_KEYS } from '../constants/query_keys'
@@ -21,7 +20,6 @@ import Carousel from '../components/Carousel'
 
 export default function SparePartDetail() {
   const { id } = useParams<{ id: string }>()
-  const toast = useToast()
 
   const { data: sparePart, isLoading, isError, error } = useQuery({
     queryKey: QUERY_KEYS.SPARE_PARTS.ID(id!),

@@ -15,6 +15,8 @@ import CategoryForm from './pages/dashboard/CategoryForm'
 import NuevoRepuesto from './pages/dashboard/repuestos/NuevoRepuesto'
 import EditarRepuesto from './pages/dashboard/repuestos/EditarRepuesto'
 import SparePartDetail from './pages/SparePartDetail'
+import ChangePassword from './pages/auth/ChangePassword'
+import AccountDetails from './pages/auth/AccountDetails'
 import { Box } from '@chakra-ui/react'
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -70,6 +72,10 @@ export const router = createBrowserRouter([
       {
         path: '/login',
         element: <Login />,
+      },
+      {
+        path: '/change-password',
+        element: <ChangePassword />,
       },
       {
         path: '/register',
@@ -128,6 +134,14 @@ export const router = createBrowserRouter([
             element: <OrdenesCompra />,
           },
         ],
+      },
+      {
+        path: '/account',
+        element: (
+          <AuthenticatedRoute>
+            <AccountDetails />
+          </AuthenticatedRoute>
+        ),
       },
     ],
   },

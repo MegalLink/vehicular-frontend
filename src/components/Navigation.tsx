@@ -53,6 +53,12 @@ export default function Navigation() {
                     {user?.email}
                   </MenuButton>
                   <MenuList>
+                    <MenuItem onClick={() => handleNavigate('/account')}>
+                      Mi Cuenta
+                    </MenuItem>
+                    <MenuItem onClick={() => handleNavigate('/change-password')}>
+                      Cambiar Contraseña
+                    </MenuItem>
                     <MenuItem onClick={handleLogout}>Cerrar sesión</MenuItem>
                   </MenuList>
                 </Menu>

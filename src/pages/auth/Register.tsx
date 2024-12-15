@@ -9,10 +9,12 @@ import {
   useToast,
   Container,
   Heading,
+  Link,
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '../../services/auth'
+import Captcha from '../../components/Captcha'
 
 export default function Register() {
   const [email, setEmail] = useState('')
@@ -20,6 +22,7 @@ export default function Register() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isCaptchaVerified, setIsCaptchaVerified] = useState(false)
   const toast = useToast()
   const navigate = useNavigate()
 
@@ -29,6 +32,17 @@ export default function Register() {
       toast({
         title: 'Error',
         description: 'Las contraseñas no coinciden',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      })
+      return
+    }
+
+    if (!isCaptchaVerified) {
+      toast({
+        title: 'Error',
+        description: 'Por favor verifica el captcha',
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -112,24 +126,32 @@ export default function Register() {
               />
             </FormControl>
 
+            <FormControl isRequired>
+              <FormLabel>Verificación</FormLabel>
+              <Captcha onVerify={setIsCaptchaVerified} />
+            </FormControl>
+
             <Button
               type="submit"
               colorScheme="primary"
               width="full"
+              size="lg"
               isLoading={isLoading}
+              loadingText="Creando cuenta..."
+              isDisabled={!isCaptchaVerified}
             >
               Registrarse
             </Button>
 
-            <Text align="center">
+            <Text textAlign="center">
               ¿Ya tienes una cuenta?{' '}
-              <Button
-                variant="link"
+              <Link
                 color="primary.500"
                 onClick={handleLoginClick}
+                _hover={{ textDecoration: 'underline', cursor: 'pointer' }}
               >
-                Inicia sesión
-              </Button>
+                Inicia sesión aquí
+              </Link>
             </Text>
           </VStack>
         </Box>

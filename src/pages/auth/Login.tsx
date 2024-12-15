@@ -10,12 +10,16 @@ import {
   useToast,
   Divider,
   HStack,
+  Link,
+  useDisclosure,
 } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { FaGoogle } from 'react-icons/fa'
 import { useAuthStore } from '../../stores/authStore'
 import { authService } from '../../services/auth'
+import ResetPasswordModal from '../../components/ResetPasswordModal'
+import Captcha from '../../components/Captcha'
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -23,9 +27,11 @@ export default function Login() {
     password: '',
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [isCaptchaVerified, setIsCaptchaVerified] = useState(false)
   const toast = useToast()
   const navigate = useNavigate()
   const setAuth = useAuthStore(state => state.setAuth)
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -37,6 +43,18 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!isCaptchaVerified) {
+      toast({
+        title: 'Error',
+        description: 'Por favor verifica el captcha',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      })
+      return
+    }
+    
     setIsLoading(true)
     
     try {
@@ -44,6 +62,7 @@ export default function Login() {
       setAuth(response.token, {
         id: response._id,
         email: response.email,
+        userName: response.userName,
         roles: response.roles
       })
       
@@ -103,47 +122,60 @@ export default function Login() {
             onChange={handleChange}
             placeholder="********"
           />
+          <Link
+            color="primary.500"
+            fontSize="sm"
+            onClick={onOpen}
+            display="block"
+            mt={2}
+            _hover={{ textDecoration: 'underline', cursor: 'pointer' }}
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
         </FormControl>
 
-        <Button 
-          type="submit" 
-          colorScheme="primary" 
+        <FormControl isRequired>
+          <FormLabel>Verificación</FormLabel>
+          <Captcha onVerify={setIsCaptchaVerified} />
+        </FormControl>
+
+        <Button
+          type="submit"
+          colorScheme="primary"
+          size="lg"
           width="full"
           isLoading={isLoading}
           loadingText="Iniciando sesión..."
+          isDisabled={!isCaptchaVerified}
         >
           Iniciar Sesión
         </Button>
 
-        <HStack w="100%">
-          <Divider />
-          <Text fontSize="sm" whiteSpace="nowrap" color="gray.500">
-            O continuar con
-          </Text>
-          <Divider />
-        </HStack>
+        <Divider />
 
         <Button
-          width="full"
-          variant="outline"
           leftIcon={<FaGoogle />}
           onClick={handleGoogleLogin}
+          width="full"
+          variant="outline"
           isDisabled={isLoading}
         >
           Continuar con Google
         </Button>
 
-        <Text>
-          ¿No tienes una cuenta?{' '}
-          <Button
-            variant="link"
+        <HStack spacing={1}>
+          <Text>¿No tienes una cuenta?</Text>
+          <Link
             color="primary.500"
             onClick={handleRegisterClick}
+            _hover={{ textDecoration: 'underline' }}
           >
-            Regístrate aquí
-          </Button>
-        </Text>
+            Regístrate
+          </Link>
+        </HStack>
       </VStack>
+
+      <ResetPasswordModal isOpen={isOpen} onClose={onClose} />
     </Box>
   )
 }

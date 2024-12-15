@@ -14,12 +14,23 @@ interface RegisterData {
 interface AuthResponse {
   email: string
   roles: string[]
+  userName: string
   token: string
   _id: string
 }
 
 interface RegisterResponse {
   message: string
+}
+
+interface ResetPasswordData {
+  email: string
+}
+
+interface ChangePasswordData {
+  email: string
+  password: string
+  newPassword: string
 }
 
 export const authService = {
@@ -40,5 +51,15 @@ export const authService = {
 
   googleLogin: () => {
     window.location.href = `${axiosInstance.defaults.baseURL}/auth/google`
+  },
+
+  resetPassword: async (resetData: ResetPasswordData) => {
+    const { data } = await axiosInstance.post<{ message: string }>('/auth/reset-password', resetData)
+    return data
+  },
+
+  changePassword: async (changeData: ChangePasswordData) => {
+    const { data } = await axiosInstance.post<{ message: string }>('/auth/change-password', changeData)
+    return data
   }
 }
