@@ -14,6 +14,7 @@ import OrdenesCompra from './pages/dashboard/OrdenesCompra'
 import CategoryForm from './pages/dashboard/CategoryForm'
 import NuevoRepuesto from './pages/dashboard/repuestos/NuevoRepuesto'
 import EditarRepuesto from './pages/dashboard/repuestos/EditarRepuesto'
+import SparePartDetail from './pages/SparePartDetail'
 import { Box } from '@chakra-ui/react'
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -61,6 +62,10 @@ export const router = createBrowserRouter([
       {
         path: '/',
         element: <Home />,
+      },
+      {
+        path: '/repuestos/:id',
+        element: <SparePartDetail />,
       },
       {
         path: '/login',

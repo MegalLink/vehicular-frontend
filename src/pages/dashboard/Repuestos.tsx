@@ -53,7 +53,11 @@ export default function Repuestos() {
     data: sparePartsData,
     isLoading,
     isError,
-  } = useSparePartsQuery(currentPage * ITEMS_PER_PAGE, ITEMS_PER_PAGE, debouncedSearch || undefined)
+  } = useSparePartsQuery({
+    offset: currentPage * ITEMS_PER_PAGE,
+    limit: ITEMS_PER_PAGE,
+    search: debouncedSearch || undefined
+  })
 
   const totalPages = Math.ceil((sparePartsData?.count || 0) / ITEMS_PER_PAGE)
 

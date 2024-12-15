@@ -1,14 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { sparePartsService } from '../services/spareParts'
+import { sparePartsService, GetSparePartsParams } from '../services/spareParts'
 import { QUERY_KEYS } from '../constants/query_keys'
 
-export const useSparePartsQuery = (offset: number, limit: number, search?: string) => {
+export const useSparePartsQuery = (params: GetSparePartsParams) => {
   return useQuery({
-    queryKey: QUERY_KEYS.SPARE_PARTS.list(offset, limit, search),
-    queryFn: () => sparePartsService.getSpareParts({
-      offset,
-      limit,
-      search,
-    }),
+    queryKey: QUERY_KEYS.SPARE_PARTS.list(params),
+    queryFn: () => sparePartsService.getSpareParts(params),
   })
 }

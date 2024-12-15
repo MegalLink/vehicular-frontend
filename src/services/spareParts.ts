@@ -41,15 +41,23 @@ export interface UpdateSparePartDto {
   data: Partial<CreateSparePartDto>
 }
 
-interface GetSparePartsParams {
+export interface GetSparePartsParams {
   offset: number
   limit: number
   search?: string
+  category?: string
+  minStock?: number
+  minPrice?: number
+  maxPrice?: number
+  brand?: string
+  brandModel?: string
+  modelType?: string
+  modelTypeYear?: string
 }
 
 export const sparePartsService = {
   // Get all spare parts with pagination and search
-  getSpareParts: async ({ offset, limit, search }: GetSparePartsParams) => {
+  getSpareParts: async ({ offset, limit, search, category, minStock, minPrice, maxPrice, brand, brandModel, modelType, modelTypeYear }: GetSparePartsParams) => {
     const params = new URLSearchParams({
       offset: offset.toString(),
       limit: limit.toString(),
@@ -58,7 +66,32 @@ export const sparePartsService = {
     if (search) {
       params.append('search', search)
     }
-    console.log("params send",params.toString())
+    if (category) {
+      params.append('category', category)
+    }
+    if (minStock !== undefined) {
+      params.append('minStock', minStock.toString())
+    }
+    if (minPrice !== undefined) {
+      params.append('minPrice', minPrice.toString())
+    }
+    if (maxPrice !== undefined) {
+      params.append('maxPrice', maxPrice.toString())
+    }
+    if (brand) {
+      params.append('brand', brand)
+    }
+    if (brandModel) {
+      params.append('brandModel', brandModel)
+    }
+    if (modelType) {
+      params.append('modelType', modelType)
+    }
+    if (modelTypeYear) {
+      params.append('modelTypeYear', modelTypeYear)
+    }
+
+    console.log("params send", params.toString())
 
     const { data } = await axiosInstance.get<SparePartsResponse>(`/spare-part?${params.toString()}`)
     return data

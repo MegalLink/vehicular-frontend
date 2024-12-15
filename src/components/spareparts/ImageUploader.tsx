@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react'
 import { useDropzone } from 'react-dropzone'
 import { DeleteIcon } from '@chakra-ui/icons'
-import { sparePartsService } from '../../services/spareParts'
+import { fileService } from '../../services/files'
 
 interface ImageUploaderProps {
   value: string[]
@@ -31,11 +31,9 @@ export default function ImageUploader({ value = [], onChange }: ImageUploaderPro
     try {
       setIsUploading(true)
       const uploadPromises = acceptedFiles.map(async (file) => {
-        const formData = new FormData()
-        formData.append('image', file)
         try {
-          const imageUrl = await sparePartsService.uploadImage(formData)
-          return imageUrl
+          const response = await fileService.uploadImage(file)
+          return response.fileUrl
         } catch (error) {
           console.error('Error uploading file:', file.name, error)
           toast({

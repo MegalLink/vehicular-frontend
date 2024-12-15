@@ -12,7 +12,8 @@ import {
   NumberInput,
   NumberInputField,
   useToast,
-  Image,
+  Switch,
+  Text,
   HStack,
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
@@ -21,6 +22,7 @@ import { brandService } from '../../services/brand'
 import { useEffect, useState, useMemo } from 'react'
 import { SparePart } from '../../services/spareParts'
 import ImageUploader from './ImageUploader'
+import { useCategoriesQuery } from '../../hooks/useCategoriesQuery'
 
 interface SparePartFormData {
   code: string
@@ -44,6 +46,7 @@ interface SparePartFormProps {
 
 export default function SparePartForm({ initialData, onSubmit, isLoading = false }: SparePartFormProps) {
   const toast = useToast()
+  const [useImageUploader, setUseImageUploader] = useState(true)
   const {
     register,
     handleSubmit,
@@ -68,54 +71,128 @@ export default function SparePartForm({ initialData, onSubmit, isLoading = false
     },
   })
 
-  const selectedBrand = watch('brand')
-  const selectedBrandModel = watch('brandModel')
   const [selectedBrandId, setSelectedBrandId] = useState<string>('')
   const [selectedModelId, setSelectedModelId] = useState<string>('')
 
+  // Obtener las categorías
+  const { data: categories } = useCategoriesQuery()
+
   // Obtener las marcas
-  const { data: brands } = useQuery({
+  const { data: brands, isLoading: isLoadingBrands } = useQuery({
     queryKey: [QUERY_KEYS.BRANDS],
     queryFn: () => brandService.getAllBrands(),
   })
 
   // Obtener los modelos de la marca seleccionada
-  const { data: models } = useQuery({
+  const { data: models, isLoading: isLoadingModels } = useQuery({
     queryKey: [QUERY_KEYS.BRAND_MODELS, selectedBrandId],
     queryFn: () => brandService.getBrandModels(selectedBrandId),
     enabled: !!selectedBrandId,
   })
 
   // Obtener los tipos de modelo
-  const { data: modelTypes } = useQuery({
+  const { data: modelTypes, isLoading: isLoadingModelTypes } = useQuery({
     queryKey: [QUERY_KEYS.MODEL_TYPES, selectedModelId],
     queryFn: () => brandService.getModelTypes(selectedModelId),
     enabled: !!selectedModelId,
   })
 
+  const selectedBrand = watch('brand')
+  const selectedBrandModel = watch('brandModel')
+
+  // Inicializar valores del formulario cuando se cargan los datos
+  useEffect(() => {
+    if (!initialData) return;
+
+    const initializeFormValues = async () => {
+      // Esperar a que se carguen las marcas si el valor no es "Desconocido"
+      if (initialData.brand !== 'Desconocido') {
+        if (!isLoadingBrands && brands) {
+          const brand = brands.find(b => b.name === initialData.brand);
+          if (brand) {
+            setValue('brand', brand.name);
+            setSelectedBrandId(brand._id);
+          }
+        }
+      } else {
+        setValue('brand', 'Desconocido');
+      }
+
+      // Esperar a que se carguen los modelos si el valor no es "Desconocido"
+      if (initialData.brandModel !== 'Desconocido') {
+        if (!isLoadingModels && models) {
+          const model = models.find(m => m.name === initialData.brandModel);
+          if (model) {
+            setValue('brandModel', model.name);
+            setSelectedModelId(model._id);
+          }
+        }
+      } else {
+        setValue('brandModel', 'Desconocido');
+      }
+
+      // Esperar a que se carguen los tipos si el valor no es "Desconocido"
+      if (initialData.modelType !== 'Desconocido') {
+        if (!isLoadingModelTypes && modelTypes) {
+          const type = modelTypes.find(t => t.name === initialData.modelType);
+          if (type) {
+            setValue('modelType', type.name);
+          }
+        }
+      } else {
+        setValue('modelType', 'Desconocido');
+      }
+
+      // Establecer el resto de los valores que no dependen de los endpoints
+      setValue('code', initialData.code);
+      setValue('name', initialData.name);
+      setValue('description', initialData.description);
+      setValue('price', initialData.price);
+      setValue('stock', initialData.stock);
+      setValue('category', initialData.category);
+      setValue('modelTypeYear', initialData.modelTypeYear);
+      setValue('images', initialData.images);
+    };
+
+    initializeFormValues();
+  }, [initialData, brands, models, modelTypes, isLoadingBrands, isLoadingModels, isLoadingModelTypes, setValue]);
+
   // Actualizar el ID de la marca cuando cambia la selección
   useEffect(() => {
-    const brand = brands?.find(b => b.name === selectedBrand)
-    if (brand) {
-      setSelectedBrandId(brand._id)
-    } else {
+    if (selectedBrand === 'Desconocido') {
       setSelectedBrandId('')
+      // Resetear los campos dependientes si es necesario
+      if (!initialData) {
+        setValue('brandModel', 'Desconocido')
+        setValue('modelType', 'Desconocido')
+      }
+    } else {
+      const brand = brands?.find(b => b.name === selectedBrand)
+      if (brand) {
+        setSelectedBrandId(brand._id)
+      } else {
+        setSelectedBrandId('')
+      }
     }
-  }, [selectedBrand, brands])
+  }, [selectedBrand, brands, setValue, initialData])
 
   // Actualizar el ID del modelo cuando cambia la selección
   useEffect(() => {
-    const model = models?.find(m => m.name === selectedBrandModel)
-    if (model) {
-      setSelectedModelId(model._id)
-      // Si hay datos iniciales y coinciden con el modelo actual, restaurar el tipo de modelo
-      if (initialData && initialData.brandModel === selectedBrandModel) {
-        setValue('modelType', initialData.modelType);
+    if (selectedBrandModel === 'Desconocido') {
+      setSelectedModelId('')
+      // Resetear el tipo de modelo si es necesario
+      if (!initialData) {
+        setValue('modelType', 'Desconocido')
       }
     } else {
-      setSelectedModelId('')
+      const model = models?.find(m => m.name === selectedBrandModel)
+      if (model) {
+        setSelectedModelId(model._id)
+      } else {
+        setSelectedModelId('')
+      }
     }
-  }, [selectedBrandModel, models, initialData, setValue])
+  }, [selectedBrandModel, models, setValue, initialData])
 
   // Limpiar el modelo y tipo de modelo cuando cambia la marca
   useEffect(() => {
@@ -179,7 +256,9 @@ export default function SparePartForm({ initialData, onSubmit, isLoading = false
 
   const handleFormSubmit = async (data: SparePartFormData) => {
     try {
-      const cleanedData = cleanFormData(data);
+      // Si hay datos iniciales (estamos editando), limpiamos los datos
+      const cleanedData = initialData ? cleanFormData(data) : data;
+      
       await onSubmit(cleanedData);
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -267,9 +346,12 @@ export default function SparePartForm({ initialData, onSubmit, isLoading = false
             })}
           >
             <option value="">Seleccione una categoría</option>
-            <option value="accesorios">Accesorios</option>
-            <option value="repuestos">Repuestos</option>
-            <option value="otros">Otros</option>
+            <option value="Desconocido">Desconocido</option>
+            {categories?.map((category) => (
+              <option key={category._id} value={category.name}>
+                {category.name}
+              </option>
+            ))}
           </Select>
           <FormErrorMessage>{errors.category?.message}</FormErrorMessage>
         </FormControl>
@@ -282,6 +364,7 @@ export default function SparePartForm({ initialData, onSubmit, isLoading = false
             })}
           >
             <option value="">Seleccione una marca</option>
+            <option value="Desconocido">Desconocido</option>
             {brands?.map((brand) => (
               <option key={brand._id} value={brand.name}>
                 {brand.name}
@@ -297,9 +380,10 @@ export default function SparePartForm({ initialData, onSubmit, isLoading = false
             {...register('brandModel', {
               required: 'Este campo es requerido',
             })}
-            isDisabled={!selectedBrandId}
+            isDisabled={!selectedBrandId && selectedBrand !== 'Desconocido'}
           >
             <option value="">Seleccione un modelo</option>
+            <option value="Desconocido">Desconocido</option>
             {models?.map((model) => (
               <option key={model._id} value={model.name}>
                 {model.name}
@@ -315,9 +399,10 @@ export default function SparePartForm({ initialData, onSubmit, isLoading = false
             {...register('modelType', {
               required: 'Este campo es requerido',
             })}
-            isDisabled={!selectedModelId}
+            isDisabled={!selectedModelId && selectedBrandModel !== 'Desconocido'}
           >
             <option value="">Seleccione un tipo de modelo</option>
+            <option value="Desconocido">Desconocido</option>
             {modelTypes?.map((type) => (
               <option key={type._id} value={type.name}>
                 {type.name}
@@ -344,19 +429,53 @@ export default function SparePartForm({ initialData, onSubmit, isLoading = false
           <FormErrorMessage>{errors.modelTypeYear?.message}</FormErrorMessage>
         </FormControl>
 
-        <Controller
-          name="images"
-          control={control}
-          rules={{ required: 'Debe subir al menos una imagen' }}
-          render={({ field: { value, onChange } }) => (
+        <FormControl>
+          <HStack mb={4} alignItems="center">
+            <Switch
+              isChecked={useImageUploader}
+              onChange={(e) => setUseImageUploader(e.target.checked)}
+              colorScheme="primary"
+            />
+            <Text>
+              {useImageUploader ? 'Subir imágenes' : 'Ingresar URLs de imágenes'}
+            </Text>
+          </HStack>
+
+          {useImageUploader ? (
+            <Controller
+              name="images"
+              control={control}
+              rules={{ required: 'Debe subir al menos una imagen' }}
+              render={({ field: { value, onChange } }) => (
+                <FormControl isInvalid={!!errors.images}>
+                  <ImageUploader value={value} onChange={onChange} />
+                  <FormErrorMessage>
+                    {errors.images?.message}
+                  </FormErrorMessage>
+                </FormControl>
+              )}
+            />
+          ) : (
             <FormControl isInvalid={!!errors.images}>
-              <ImageUploader value={value} onChange={onChange} />
+              <FormLabel>URLs de imágenes (una por línea)</FormLabel>
+              <Textarea
+                placeholder="https://ejemplo.com/imagen1.jpg&#10;https://ejemplo.com/imagen2.jpg"
+                value={watch('images').join('\n')}
+                onChange={(e) => {
+                  const urls = e.target.value
+                    .split('\n')
+                    .map(url => url.trim())
+                    .filter(url => url !== '');
+                  setValue('images', urls);
+                }}
+                minH="150px"
+              />
               <FormErrorMessage>
                 {errors.images?.message}
               </FormErrorMessage>
             </FormControl>
           )}
-        />
+        </FormControl>
 
         <Button
           type="submit"

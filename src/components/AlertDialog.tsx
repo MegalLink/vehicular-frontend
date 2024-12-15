@@ -33,6 +33,7 @@ export default function AlertDialog({
   return (
     <ChakraAlertDialog
       isOpen={isOpen}
+      // @ts-ignore
       leastDestructiveRef={cancelRef}
       onClose={onClose}
     >

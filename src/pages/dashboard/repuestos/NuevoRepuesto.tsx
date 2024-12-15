@@ -19,10 +19,10 @@ export default function NuevoRepuesto() {
         isClosable: true,
       })
       navigate('/dashboard/repuestos')
-    } catch (error) {
+    } catch (error:any) {
       toast({
         title: 'Error',
-        description: 'No se pudo crear el repuesto',
+        description:JSON.stringify(error.response.data.message),
         status: 'error',
         duration: 3000,
         isClosable: true,

@@ -5,24 +5,31 @@ import  {sparePartsService}  from '../services/spareParts'
 export function useSparePartMutations() {
   const queryClient = useQueryClient()
 
+  const invalidateSparePartQueries = () => {
+    queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.SPARE_PARTS.ALL],
+      refetchType: 'all'
+    })
+  }
+
   const createMutation = useMutation({
     mutationFn: sparePartsService.createSparePart,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SPARE_PARTS] })
+      invalidateSparePartQueries()
     },
   })
 
   const updateMutation = useMutation({
     mutationFn: sparePartsService.updateSparePart,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SPARE_PARTS] })
+      invalidateSparePartQueries()
     },
   })
 
   const deleteMutation = useMutation({
     mutationFn: sparePartsService.deleteSparePart,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SPARE_PARTS] })
+      invalidateSparePartQueries()
     },
   })
 

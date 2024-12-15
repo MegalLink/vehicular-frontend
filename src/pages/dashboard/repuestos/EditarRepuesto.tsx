@@ -1,4 +1,4 @@
-import { Container, Heading, useToast, Center, Spinner } from '@chakra-ui/react'
+import { Container, Heading, useToast, Spinner, Center } from '@chakra-ui/react'
 import { useNavigate, useParams } from 'react-router-dom'
 import SparePartForm from '../../../components/spareparts/SparePartForm'
 import { useSparePartMutations } from '../../../hooks/useSparePartMutations'
@@ -7,25 +7,20 @@ import { QUERY_KEYS } from '../../../constants/query_keys'
 import { sparePartsService } from '../../../services/spareParts'
 
 export default function EditarRepuesto() {
-  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const toast = useToast()
+  const { id } = useParams()
   const { updateMutation } = useSparePartMutations()
 
-  const { data: sparePart, isLoading } = useQuery({
+  const { data: sparePart, isLoading: isLoadingSparePart } = useQuery({
     queryKey: QUERY_KEYS.SPARE_PARTS.ID(id!),
     queryFn: () => sparePartsService.getSparePart(id!),
     enabled: !!id,
   })
 
   const handleSubmit = async (data: any) => {
-    if (!id) return
-
     try {
-      await updateMutation.mutateAsync({
-        id,
-        data,
-      })
+      await updateMutation.mutateAsync({ id: id!, data })
       toast({
         title: 'Éxito',
         description: 'Repuesto actualizado exitosamente',
@@ -34,10 +29,10 @@ export default function EditarRepuesto() {
         isClosable: true,
       })
       navigate('/dashboard/repuestos')
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: 'Error',
-        description: 'No se pudo actualizar el repuesto',
+        description: JSON.stringify(error.response.data.message) || error.response?.data?.message || 'Error al actualizar el repuesto',
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -45,25 +40,27 @@ export default function EditarRepuesto() {
     }
   }
 
-  if (isLoading) {
+  if (isLoadingSparePart || !sparePart) {
     return (
       <Center h="50vh">
-        <Spinner size="xl" color="primary.500" />
+        <Spinner 
+          thickness="4px"
+          speed="0.65s"
+          emptyColor="gray.200"
+          color="primary.500"
+          size="xl"
+        />
       </Center>
     )
-  }
-
-  if (!sparePart) {
-    return null
   }
 
   return (
     <Container maxW="container.xl" py={8}>
       <Heading mb={6}>Editar Repuesto</Heading>
-      <SparePartForm
+      <SparePartForm 
+        onSubmit={handleSubmit} 
+        isLoading={updateMutation.isPending} 
         initialData={sparePart}
-        onSubmit={handleSubmit}
-        isLoading={updateMutation.isPending}
       />
     </Container>
   )
