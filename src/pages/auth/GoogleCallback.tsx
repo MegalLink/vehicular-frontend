@@ -38,16 +38,20 @@ export default function GoogleCallback() {
         setAuth(token, {
           id: response._id,
           email: response.email,
+          userName: response.userName,
           roles: response.roles
         })
 
-        toast({
-          title: 'Inicio de sesión exitoso',
-          description: 'Has iniciado sesión con Google correctamente',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-        })
+        if (!toast.isActive('google-login-success')) {
+          toast({
+            id: 'google-login-success',
+            title: 'Inicio de sesión exitoso',
+            description: 'Has iniciado sesión con Google correctamente',
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+          })
+        }
 
         // Redirigir según el rol
         const hasAdminAccess = response.roles.some(role => ['admin', 'employee'].includes(role))

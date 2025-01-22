@@ -20,4 +20,8 @@ export const QUERY_KEYS = {
   BRANDS: 'brands',
   BRAND_MODELS: 'brand_models',
   MODEL_TYPES: 'model_types',
+  USER_DETAILS: {
+    ALL: 'user_details',
+    LIST: ['user_details', 'list'],
+  },
 } as const

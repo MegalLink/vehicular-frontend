@@ -17,6 +17,9 @@ import EditarRepuesto from './pages/dashboard/repuestos/EditarRepuesto'
 import SparePartDetail from './pages/SparePartDetail'
 import ChangePassword from './pages/auth/ChangePassword'
 import AccountDetails from './pages/auth/AccountDetails'
+import Checkout from './pages/Checkout'
+import CheckoutSuccess from './pages/CheckoutSuccess'
+import CheckoutCancelled from './pages/CheckoutCancelled'
 import { Box } from '@chakra-ui/react'
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -68,6 +71,22 @@ export const router = createBrowserRouter([
       {
         path: '/repuestos/:id',
         element: <SparePartDetail />,
+      },
+      {
+        path: '/checkout',
+        element: (
+          <AuthenticatedRoute>
+            <Checkout />
+          </AuthenticatedRoute>
+        ),
+      },
+      {
+        path: '/checkout-success',
+        element: <CheckoutSuccess />,
+      },
+      {
+        path: '/checkout-cancelled',
+        element: <CheckoutCancelled />,
       },
       {
         path: '/login',

@@ -1,9 +1,11 @@
-import { Box, Image, Text, VStack, IconButton, HStack } from '@chakra-ui/react'
+import { Box, Image, Text, VStack, IconButton, HStack, Button, useToast } from '@chakra-ui/react'
 import { SparePart } from '../services/spareParts'
 import { useState } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { formatPrice } from '../utils/formatters'
 import { useNavigate } from 'react-router-dom'
+import { useCartStore } from '../stores/cartStore'
+import { FaShoppingCart } from 'react-icons/fa'
 
 interface SparePartCardProps {
   sparePart: SparePart
@@ -12,6 +14,8 @@ interface SparePartCardProps {
 export default function SparePartCard({ sparePart }: SparePartCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const navigate = useNavigate()
+  const toast = useToast()
+  const addItem = useCartStore((state) => state.addItem)
 
   const handlePrevImage = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -34,6 +38,25 @@ export default function SparePartCard({ sparePart }: SparePartCardProps) {
 
   const handleCardClick = () => {
     navigate(`/repuestos/${sparePart._id}`)
+  }
+
+  const handleAddToCart = () => {
+    addItem({
+      id: sparePart._id,
+      name: sparePart.name,
+      price: sparePart.price,
+      quantity: 1,
+      code: sparePart.code,
+      image: sparePart.images[0],
+    })
+    
+    toast({
+      title: 'Producto agregado',
+      description: 'El producto se agregó al carrito correctamente',
+      status: 'success',
+      duration: 2000,
+      isClosable: true,
+    })
   }
 
   return (
@@ -118,6 +141,15 @@ export default function SparePartCard({ sparePart }: SparePartCardProps) {
           <Text fontSize="sm" color="gray.500">
             Precio sin IVA
           </Text>
+          <Button
+            leftIcon={<FaShoppingCart />}
+            colorScheme="blue"
+            width="100%"
+            onClick={handleAddToCart}
+            isDisabled={sparePart.stock === 0}
+          >
+            Agregar al carrito
+          </Button>
         </VStack>
       </Box>
     </Box>
