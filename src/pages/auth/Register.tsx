@@ -55,9 +55,9 @@ export default function Register() {
       await authService.register({ email, password, userName })
       toast({
         title: 'Cuenta creada',
-        description: 'Tu cuenta ha sido creada exitosamente',
+        description: 'Porfavor confirme la creación de cuenta en su correo electrónico',
         status: 'success',
-        duration: 3000,
+        duration: 10000,
         isClosable: true,
       })
       navigate('/login')
