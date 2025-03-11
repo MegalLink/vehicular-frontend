@@ -27,7 +27,7 @@ export interface Order {
   userDetail: UserOrderDetail;
   totalPrice: number;
   paymentStatus: 'Paid' | 'Pending' | 'Failed';
-  status: 'PENDING' | 'PROCESSING' | 'DELIVERED' | 'CANCELLED';
+  paymentID: string;
   items: OrderItem[];
   createdAt: string;
   updatedAt: string;
@@ -43,6 +43,7 @@ export interface CreateOrderRequest {
 
 export interface GetOrdersParams {
   userID?: string;
+  orderID?: string;
   paymentStatus?: 'Paid' | 'Pending' | 'Failed';
   status?: 'PENDING' | 'PROCESSING' | 'DELIVERED' | 'CANCELLED';
   createdAt?: string;
