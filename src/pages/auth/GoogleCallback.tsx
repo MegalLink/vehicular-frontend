@@ -30,7 +30,7 @@ export default function GoogleCallback() {
       try {
         // Configurar el token en el header para la siguiente petición
         axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`
-        
+        console.log("Entered here")
         // Obtener la información del usuario usando el token
         const response = await authService.getAuthStatus()
         

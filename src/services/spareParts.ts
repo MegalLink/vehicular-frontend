@@ -13,7 +13,6 @@ export interface SparePart {
   brandModel: string
   modelType: string
   modelTypeYear: string
-  userID: string
   createdBy: string
   createdAt: string
   updatedAt: string

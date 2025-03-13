@@ -62,65 +62,68 @@ export default function SparePartFilters({ filters, onFilterChange }: SparePartF
         </Text>
       </Box>
 
-      <FormControl>
-        <FormLabel>Categoría</FormLabel>
-        <Select
-          value={filters.category || 'Todos'}
-          onChange={(e) => onFilterChange('category', e.target.value)}
-        >
-          <option value="Todos">Todas las categorías</option>
-          {categories?.map((category) => (
-            <option key={category._id} value={category.name}>
-              {category.name}
-            </option>
-          ))}
-        </Select>
-      </FormControl>
 
-      <FormControl>
+      {categories&&
+          <FormControl>
+            <FormLabel>Categoría</FormLabel>
+            <Select
+                value={filters.category || 'Todos'}
+                onChange={(e) => onFilterChange('category', e.target.value)}
+            >
+              <option value="Todos">Todas las categorías</option>
+              {categories?.map((category) => (
+                  <option key={category._id} value={category.name}>
+                    {category.name}
+                  </option>
+              ))}
+            </Select>
+          </FormControl>}
+
+      {brands&&<FormControl>
         <FormLabel>Marca</FormLabel>
         <Select
-          value={filters.brand || 'Todos'}
-          onChange={(e) => onFilterChange('brand', e.target.value)}
+            value={filters.brand || 'Todos'}
+            onChange={(e) => onFilterChange('brand', e.target.value)}
         >
           <option value="Todos">Todas las marcas</option>
           {brands?.map((brand) => (
-            <option key={brand._id} value={brand.name}>
-              {brand.name}
-            </option>
+              <option key={brand._id} value={brand.name}>
+                {brand.name}
+              </option>
           ))}
         </Select>
-      </FormControl>
+      </FormControl>}
 
-      <FormControl isDisabled={!filters.brand || filters.brand === 'Todos'}>
-        <FormLabel>Modelo</FormLabel>
-        <Select
-          value={filters.brandModel || 'Todos'}
-          onChange={(e) => onFilterChange('brandModel', e.target.value)}
-        >
-          <option value="Todos">Todos los modelos</option>
-          {models?.map((model) => (
-            <option key={model._id} value={model.name}>
-              {model.name}
-            </option>
-          ))}
-        </Select>
-      </FormControl>
+      {models&&<FormControl isDisabled={!filters.brand || filters.brand === 'Todos'}>
+          <FormLabel>Modelo</FormLabel>
+          <Select
+              value={filters.brandModel || 'Todos'}
+              onChange={(e) => onFilterChange('brandModel', e.target.value)}
+          >
+            <option value="Todos">Todos los modelos</option>
+            {models?.map((model) => (
+                <option key={model._id} value={model.name}>
+                  {model.name}
+                </option>
+            ))}
+          </Select>
+        </FormControl>}
 
-      <FormControl isDisabled={!filters.brandModel || filters.brandModel === 'Todos'}>
+      {modelTypes&& <FormControl isDisabled={!filters.brandModel || filters.brandModel === 'Todos'}>
         <FormLabel>Tipo</FormLabel>
         <Select
-          value={filters.modelType || 'Todos'}
-          onChange={(e) => onFilterChange('modelType', e.target.value)}
+            value={filters.modelType || 'Todos'}
+            onChange={(e) => onFilterChange('modelType', e.target.value)}
         >
           <option value="Todos">Todos los tipos</option>
           {modelTypes?.map((type) => (
-            <option key={type._id} value={type.name}>
-              {type.name}
-            </option>
+              <option key={type._id} value={type.name}>
+                {type.name}
+              </option>
           ))}
         </Select>
-      </FormControl>
+      </FormControl>}
+
 
       <FormControl>
         <FormLabel>Año</FormLabel>

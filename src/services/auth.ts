@@ -45,12 +45,15 @@ export const authService = {
   },
 
   getAuthStatus: async () => {
+    console.log("Getting auth status")
     const { data } = await axiosInstance.get<AuthResponse>('/auth/status')
     return data
   },
 
   googleLogin: () => {
-    window.location.href = `${axiosInstance.defaults.baseURL}/auth/google`
+    const directionRedirect=`${axiosInstance.defaults.baseURL}/auth/google`
+    
+    window.location.href = directionRedirect
   },
 
   resetPassword: async (resetData: ResetPasswordData) => {
