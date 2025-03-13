@@ -31,7 +31,7 @@ export default function CheckoutSuccess() {
         <Box>
           <Button
             colorScheme="blue"
-            onClick={() => navigate('/orders')}
+            onClick={() => navigate('/account')}
             size="lg"
           >
             Ver mis órdenes

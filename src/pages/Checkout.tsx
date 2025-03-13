@@ -181,7 +181,7 @@ export default function Checkout() {
         const order = {
           userDetailID: selectedUserDetail,
           items: items.map(item => ({
-            code: item.id,
+            code: item.code,
             quantity: item.quantity
           })),
         }
@@ -233,7 +233,7 @@ export default function Checkout() {
     try {
       // Create order
       const orderItems = items.map(item => ({
-        code: item.id,
+        code: item.code,
         quantity: item.quantity
       }))
 

@@ -21,6 +21,7 @@ import Checkout from './pages/Checkout'
 import CheckoutSuccess from './pages/CheckoutSuccess'
 import CheckoutCancelled from './pages/CheckoutCancelled'
 import { Box } from '@chakra-ui/react'
+import { AccountPage } from './pages/account/Account'
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, user } = useAuthStore()
@@ -158,7 +159,7 @@ export const router = createBrowserRouter([
         path: '/account',
         element: (
           <AuthenticatedRoute>
-            <AccountDetails />
+            <AccountPage />
           </AuthenticatedRoute>
         ),
       },

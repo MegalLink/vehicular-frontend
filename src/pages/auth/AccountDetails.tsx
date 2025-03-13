@@ -1,6 +1,5 @@
 import {
   Box,
-  Container,
   Heading,
   Text,
   VStack,
@@ -168,7 +167,6 @@ export default function AccountDetails() {
   const userRole = user?.roles;
 
   return (
-    <Container maxW="container.md" py={8}>
       <VStack
         spacing={6}
         align="stretch"
@@ -252,8 +250,6 @@ export default function AccountDetails() {
             </VStack>
           </Box>
         )}
-
-        <Divider />
 
         <Modal isOpen={isOpen} onClose={onClose}>
           <ModalOverlay />
@@ -344,6 +340,5 @@ export default function AccountDetails() {
           </ModalContent>
         </Modal>
       </VStack>
-    </Container>
   )
 }
