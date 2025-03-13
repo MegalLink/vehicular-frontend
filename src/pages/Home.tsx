@@ -24,7 +24,7 @@ import { useSparePartsQuery } from '../hooks/useSparePartsQuery'
 import { useDebounce } from '../hooks/useDebounce'
 import SparePartFilters from '../components/filters/SparePartFilters'
 
-const ITEMS_PER_PAGE = 5
+const ITEMS_PER_PAGE = 10
 
 interface Filters {
   category?: string

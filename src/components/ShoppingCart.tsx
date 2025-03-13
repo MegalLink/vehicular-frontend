@@ -131,7 +131,7 @@ export default function ShoppingCart() {
           <DrawerFooter borderTopWidth="1px">
             <VStack width="100%" spacing={4}>
               <HStack justify="space-between" width="100%">
-                <Text fontWeight="bold">Total:</Text>
+                <Text fontWeight="bold">Total (Sin iva):</Text>
                 <Text fontWeight="bold">S/. {getTotalPrice().toFixed(2)}</Text>
               </HStack>
               <Button

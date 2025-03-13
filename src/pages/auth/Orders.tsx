@@ -22,9 +22,14 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import { orderService, Order, OrderItem } from '../../services/order'
 import { useAuthStore } from '../../stores/authStore'
+import { STRIPE_TAX_RATE } from '../../constants/env'
+import { formatPrice } from '../../utils/formatters'
 
 export default function Orders() {
   const { user } = useAuthStore()
+  
+  // Función para redondear a dos decimales
+  const roundToTwoDecimals = (num: number) => Math.round(num * 100) / 100;
   
   // Hook para obtener las órdenes del usuario actual
   const { data: orders, isLoading, error } = useQuery({
@@ -64,33 +69,59 @@ export default function Orders() {
     })
   }
 
+  // Función para calcular el subtotal, impuesto y total de una orden
+  const calculateOrderTotals = (items: OrderItem[]) => {
+    // Calcular el total con impuestos incluidos (como en Checkout)
+    const total = items.reduce((acc, item) => {
+      const priceWithTax = roundToTwoDecimals((item.price || 0) * (1 + STRIPE_TAX_RATE));
+      return acc + roundToTwoDecimals(priceWithTax * item.quantity);
+    }, 0);
+    
+    // Calcular el subtotal (sin impuestos)
+    const subtotal = roundToTwoDecimals(total / (1 + STRIPE_TAX_RATE));
+    
+    // Calcular el impuesto
+    const tax = roundToTwoDecimals(total - subtotal);
+    
+    return { subtotal, tax, total };
+  }
+
   // Renderizar los items de una orden
   const renderOrderItems = (items: OrderItem[]) => {
+    const { subtotal, tax, total } = calculateOrderTotals(items);
+    
     return (
-      <TableContainer>
-        <Table variant="simple" size="sm">
-          <Thead>
-            <Tr>
-              <Th>Código</Th>
-              <Th>Nombre</Th>
-              <Th>Precio</Th>
-              <Th>Cantidad</Th>
-              <Th>Subtotal</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {items.map((item, index) => (
-              <Tr key={`${item.code}-${index}`}>
-                <Td>{item.code}</Td>
-                <Td>{item.name || 'N/A'}</Td>
-                <Td>${item.price?.toFixed(2) || '0.00'}</Td>
-                <Td>{item.quantity}</Td>
-                <Td>${((item.price || 0) * item.quantity).toFixed(2)}</Td>
+      <>
+        <TableContainer>
+          <Table variant="simple" size="sm">
+            <Thead>
+              <Tr>
+                <Th>Código</Th>
+                <Th>Nombre</Th>
+                <Th>Precio</Th>
+                <Th>Cantidad</Th>
+                <Th>Subtotal</Th>
               </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </TableContainer>
+            </Thead>
+            <Tbody>
+              {items.map((item, index) => (
+                <Tr key={`${item.code}-${index}`}>
+                  <Td>{item.code}</Td>
+                  <Td>{item.name || 'N/A'}</Td>
+                  <Td>{formatPrice(item.price || 0)}</Td>
+                  <Td>{item.quantity}</Td>
+                  <Td>{formatPrice((item.price || 0) * item.quantity)}</Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </TableContainer>
+        <Flex justifyContent="flex-end" mt={4} flexDirection="column" alignItems="flex-end">
+          <Text fontWeight="medium">Subtotal: {formatPrice(subtotal)}</Text>
+          <Text fontWeight="medium">IVA ({STRIPE_TAX_RATE * 100}%): {formatPrice(tax)}</Text>
+          <Text fontWeight="bold" fontSize="lg">Total: {formatPrice(total)}</Text>
+        </Flex>
+      </>
     )
   }
 
@@ -127,7 +158,7 @@ export default function Orders() {
                       <Text fontWeight="bold">Orden #{order.orderID.slice(-8)}</Text>
                       <Flex gap={4}>
                         <Text>{formatDate(order.createdAt)}</Text>
-                        <Text>${order.totalPrice.toFixed(2)}</Text>
+                        <Text>{formatPrice(order.totalPrice)}</Text>
                         {renderPaymentStatus(order.paymentStatus)}
                       </Flex>
                     </Flex>
@@ -183,9 +214,6 @@ export default function Orders() {
                 <Box>
                   <Text fontWeight="bold" mb={2}>Productos:</Text>
                   {renderOrderItems(order.items)}
-                  <Flex justifyContent="flex-end" mt={4}>
-                    <Text fontWeight="bold">Total: ${order.totalPrice.toFixed(2)}</Text>
-                  </Flex>
                 </Box>
               </AccordionPanel>
             </AccordionItem>
